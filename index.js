@@ -1,6 +1,6 @@
 const express = require('express')
 const cors = require('cors')
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const port =process.env.PORT||5000
 const app = express()
@@ -32,7 +32,44 @@ async function run() {
         res.send(result)
         console.log(result)
     })
-    
+    app.get('/manage-camps',async(req,res)=>{
+      const result=await adminAddCollection.find().toArray()
+      res.send(result)
+    })
+    app.get('/manage-camps/:id',async(req,res)=>{
+      const id=req.params.id
+      console.log (id)
+      const query ={_id:new ObjectId(id)}
+      const result =await adminAddCollection.findOne(query )
+      res.send(result)
+    })
+   
+    app.patch('/update-camp/:id',async(req,res)=>{
+      const id = req.params.id;
+      const query = { _id:new ObjectId (id) };
+      const update = req.body;
+      const options = { upsert: true };
+      const document ={
+        $set:{
+          campName:update.campName,
+          image:update.image, 
+          campFees:update.campFees,
+          scheduledDate:update.scheduledDate,
+          time:update.time,
+          venue:update.venue,
+          services :update.services ,
+          attendance:update.attendance,
+          targetAudience:update.targetAudience,
+          description:update.description
+        }
+        
+      }
+      const result =await adminAddCollection.updateOne(query,document,options)
+      res.send(result)
+    })
+
+
+
     await client.db("admin").command({ ping: 1 });
     console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
