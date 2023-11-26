@@ -34,7 +34,7 @@ app.post ('/jwt',async(req,res)=>{
     expiresIn: "1h",
   })
   res.send({token})
-  console.log(token)
+  //console.log(token)
 })
 const verifyToken=(req,res,next)=>{
   if(!req.headers.authorization){
@@ -73,7 +73,15 @@ app.post('/registration',async(req,res)=>{
   const add=req.body 
   const result =await jointCampCollection.insertOne(add)
   res.send(result)
-  console.log(result)
+ // console.log(result)
+})
+app.get('/registration',async(req,res)=>{
+  const email=req?.query?.email 
+  console.log(email)
+  const query={email:email}
+  const result =await jointCampCollection.find(query).toArray()
+  res.send(result)
+ // console.log(result)
 })
 
 
@@ -84,7 +92,7 @@ app.post('/registration',async(req,res)=>{
         const add=req.body 
         const result =await adminAddCollection.insertOne(add)
         res.send(result)
-        console.log(result)
+        //console.log(result)
     })
     app.get('/manage-camps',async(req,res)=>{
       const result=await adminAddCollection.find().toArray()
