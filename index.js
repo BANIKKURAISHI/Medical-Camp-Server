@@ -1,5 +1,6 @@
 const express = require('express')
 const cors = require('cors')
+const jwt = require("jsonwebtoken");
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config()
 const port =process.env.PORT||5000
@@ -24,6 +25,59 @@ async function run() {
   try {
     await client.connect();
     const adminAddCollection =client.db('Medical').collection('adminAdd')
+    const userCollection =client.db('Medical').collection('users')
+    const jointCampCollection =client.db('Medical').collection('jointCamp')
+////jwt 
+app.post ('/jwt',async(req,res)=>{
+  const body =req.body 
+  const token =await jwt.sign(body, process.env.ACCESS_TOKEN,{
+    expiresIn: "1h",
+  })
+  res.send({token})
+  console.log(token)
+})
+const verifyToken=(req,res,next)=>{
+  if(!req.headers.authorization){
+    res.status(401).send({ message: "Forbidden access" })
+  }
+  const token =req.headers.authorization.split(' ')[1]
+  jwt.verify(token,process.env.ACCESS_TOKEN,(error,decoded)=>{
+    if(error){
+      return res.status(401).send({ message: "Forbidden access " });
+    }
+    req.decoded=decoded
+    next();
+  })
+}
+
+
+
+
+
+///user collection 
+app.post('/user',async(req,res)=>{
+  const user = req.body;
+  const query ={email:user.email}
+  const uniqEmail=await userCollection.findOne(query)
+  if(uniqEmail){
+    return res.send({ message: "Already exist", InsertedId: null })
+  }
+  query.name=user.name 
+  query.photo=user.photo 
+  const result =await userCollection.insertOne(query)
+  res.send(result)
+  
+})
+////join Camp 
+app.post('/registration',async(req,res)=>{
+  const add=req.body 
+  const result =await jointCampCollection.insertOne(add)
+  res.send(result)
+  console.log(result)
+})
+
+
+
 
     //// Post for new user 
     app.post('/adminAdd',async(req,res)=>{
@@ -65,6 +119,13 @@ async function run() {
         
       }
       const result =await adminAddCollection.updateOne(query,document,options)
+      res.send(result)
+    })
+
+    app.delete('/delete-camp/:id',async(req,res)=>{
+      const id =req.params.id 
+      const query ={_id:new ObjectId(id)}
+      const result =await adminAddCollection.deleteOne(query)
       res.send(result)
     })
 
