@@ -83,6 +83,19 @@ app.get('/registration',async(req,res)=>{
   res.send(result)
  // console.log(result)
 })
+app.get('/registration/:id',async(req,res)=>{
+  const id=req.params.id
+  console.log (id)
+  const query ={_id:new ObjectId(id)}
+  const result =await jointCampCollection.findOne(query )
+  res.send(result)
+})
+// app.delete('/delete-registration/:id',async(req,res)=>{
+//   const id =req.params.id 
+//   const query ={_id:new ObjectId(id)}
+//   const result =await adminAddCollection.deleteOne(query)
+//   res.send(result)
+// })
 
 
 
