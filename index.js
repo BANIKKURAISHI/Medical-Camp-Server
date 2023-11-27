@@ -260,6 +260,14 @@ app.get('/bestCamps',async(req,res)=>{
       res.send(result)
     })
 
+    app.delete('/registration-cancel/:id',async(req,res)=>{
+      const id =req.params.id 
+      const query ={_id:new ObjectId(id)}
+      const result =await jointCampCollection.deleteOne(query)
+      res.send(result)
+    })
+
+
 
 
     ////////////payment method /////////////////////
