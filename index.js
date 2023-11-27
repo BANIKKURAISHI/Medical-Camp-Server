@@ -233,7 +233,21 @@ app.get('/bestCamps',async(req,res)=>{
     app.post('/payment',async(req,res)=>{
       const id=req.body 
       const paymentResult =await CampPaymentCollection.insertOne(id)
-   
+     res.send(paymentResult)
+    })
+
+    app.patch('/updateCamp/:id',async(req,res)=>{
+      const id=req.params.id
+      const query={_id:new ObjectId(id)}
+      const update=req.body 
+      const updateDoc={
+        $set:{
+          paymentStatus:update. paymentStatus,
+          confirmStatus:update.confirmStatus
+        }
+      }
+      const result =await jointCampCollection.updateOne(query,updateDoc)
+      res.send(result)
     })
 
 
