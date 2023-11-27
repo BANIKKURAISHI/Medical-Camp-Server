@@ -90,14 +90,38 @@ app.get('/registration/:id',async(req,res)=>{
   const result =await jointCampCollection.findOne(query )
   res.send(result)
 })
-// app.delete('/delete-registration/:id',async(req,res)=>{
-//   const id =req.params.id 
-//   const query ={_id:new ObjectId(id)}
-//   const result =await adminAddCollection.deleteOne(query)
-//   res.send(result)
-// })
+//  app.delete('/delete-registration/:id',async(req,res)=>{
+//    const id =req.params.id 
+//    const query ={_id:new ObjectId(id)}
+//    const result =await adminAddCollection.deleteOne(query)
+//    res.send(result)
+//  })
 
-
+//get 6 id which 
+app.get('/bestCamps',async(req,res)=>{
+  // const filter =req.query 
+  // const query={full_description:}
+   const result =await adminAddCollection.find().sort({ attendance:-1}).limit(2).toArray()
+   res.send(result)
+ 
+ })
+ ///// update only attendence
+ app.patch('/update/:id',async(req,res)=>{
+  const id = req.params.id;
+  const query = { _id:new ObjectId (id) };
+  const update = req.body;
+  const options = { upsert: true };
+  const document ={
+    $set:{
+     
+      attendance:update.attendance,
+    
+    }
+    
+  }
+  const result =await adminAddCollection.updateOne(query,document,options)
+  res.send(result)
+})
 
 
     //// Post for new user 
