@@ -91,6 +91,15 @@ app.get('/organizer-profile',async(req,res)=>{
   res.send(result)
   //console.log(result)
 })
+//
+
+app.get('/organizer-profile/:id',async(req,res)=>{
+   const id=req.params.id 
+   const query={_id:new ObjectId(id)}
+  const result =await userCollection.findOne(query)
+  res.send(result)
+  //console.log(result)
+})
 
 
 app.patch('/organizer-profile/admin/:id',verifyToken,async(req,res)=>{
