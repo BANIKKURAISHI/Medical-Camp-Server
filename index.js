@@ -177,6 +177,16 @@ app.get('/bestCamps',async(req,res)=>{
   const result =await adminAddCollection.updateOne(query,document,options)
   res.send(result)
 })
+/////////////////////Camp payment 
+ app.get('/campRegistration',async(req,res)=>{
+ const result=await CampPaymentCollection.find().toArray()
+ res.send(result)
+ })
+
+////////////////////////////////
+
+
+
 
 
     //// Post for new user 
