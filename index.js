@@ -28,6 +28,7 @@ async function run() {
     const adminAddCollection =client.db('Medical').collection('adminAdd')
     const userCollection =client.db('Medical').collection('users')
     const jointCampCollection =client.db('Medical').collection('jointCamp')
+    const CampPaymentCollection =client.db('Medical').collection('campPayment')
 ////jwt 
 app.post ('/jwt',async(req,res)=>{
   const body =req.body 
@@ -38,13 +39,14 @@ app.post ('/jwt',async(req,res)=>{
   //console.log(token)
 })
 const verifyToken=(req,res,next)=>{
-  if(!req.headers.authorization){
+  //console.log(req?.headers?.authorizationS)
+  if(!req?.headers?.authorization){
     res.status(401).send({ message: "Forbidden access" })
   }
-  const token =req.headers.authorization.split(' ')[1]
+  const token =req?.headers?.authorization?.split(' ')[1]
   jwt.verify(token,process.env.ACCESS_TOKEN,(error,decoded)=>{
     if(error){
-      return res.status(401).send({ message: "Forbidden access " });
+      return res.status(403).send({ message: "Forbidden access " });
     }
     req.decoded=decoded
     next();
@@ -52,8 +54,8 @@ const verifyToken=(req,res,next)=>{
 }
 
 app.get("/user/admin/:email", verifyToken, async (req, res) => {
-      const email = req.params.email;
-      if (!email === req.decoded.email) {
+      const email = req?.params?.email;
+      if (!email === req?.decoded?.email) {
         return res.status(403).send({ message: "unauthorized access " });
       }
       const query = { email: email };
@@ -67,7 +69,7 @@ app.get("/user/admin/:email", verifyToken, async (req, res) => {
 
 
 const verifyAdmin=async(req,res,next)=>{
-  const email = req.decoded.email;
+  const email = req?.decoded?.email;
   const query = { email: email };
   const user =await userCollection.findOne(query)
   const admin=user?.role==="admin"
@@ -138,7 +140,7 @@ app.get('/registration',async(req,res)=>{
 })
 app.get('/registration/:id',async(req,res)=>{
   const id=req.params.id
-  console.log (id)
+ // console.log (id)
   const query ={_id:new ObjectId(id)}
   const result =await jointCampCollection.findOne(query )
   res.send(result)
@@ -190,7 +192,7 @@ app.get('/bestCamps',async(req,res)=>{
     })
     app.get('/manage-camps/:id',async(req,res)=>{
       const id=req.params.id
-      console.log (id)
+     // console.log (id)
       const query ={_id:new ObjectId(id)}
       const result =await adminAddCollection.findOne(query )
       res.send(result)
@@ -226,6 +228,33 @@ app.get('/bestCamps',async(req,res)=>{
       const result =await adminAddCollection.deleteOne(query)
       res.send(result)
     })
+
+    ////payment item post 
+    app.post('/payment',async(req,res)=>{
+      const id=req.body 
+      const paymentResult =await CampPaymentCollection.insertOne(id)
+   
+    })
+
+
+
+    ////////////payment method /////////////////////
+    app.post("/create-payment-intent", async (req, res) => {
+      const { price } = req.body;
+      const amount = parseInt(price * 100);
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: amount,
+        currency: "usd",
+        payment_method_types: ["card"],
+      });
+     console.log(paymentIntent.client_secret)
+      res.send({
+       clientSecret: paymentIntent?.client_secret,
+      });
+    })
+
+
+
 
 
 
