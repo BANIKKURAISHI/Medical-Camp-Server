@@ -246,6 +246,10 @@ app.post('/feedback-and-ratings',async(req,res)=>{
   const result =await reviewCollection.insertOne(feed)
   res.send(result)
 })
+app.get('/feedback-and-ratings',async(req,res)=>{
+  const result=await reviewCollection.find().toArray()
+  res.send(result)
+})
 
 
 
