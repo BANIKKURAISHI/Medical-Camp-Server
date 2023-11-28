@@ -29,6 +29,7 @@ async function run() {
     const userCollection =client.db('Medical').collection('users')
     const jointCampCollection =client.db('Medical').collection('jointCamp')
     const CampPaymentCollection =client.db('Medical').collection('campPayment')
+    const reviewCollection =client.db('Medical').collection('review')
 ////jwt 
 app.post ('/jwt',async(req,res)=>{
   const body =req.body 
@@ -162,6 +163,19 @@ app.post('/registration',async(req,res)=>{
  // console.log(result)
 })
 
+//////////////////paid camp gate 
+app.get('/paid',async(req,res)=>{
+  const email=req?.query?.email 
+  console.log(email)
+  const query={email:email}
+  const result =await CampPaymentCollection.find(query).toArray()
+  res.send(result)
+ // console.log(result)
+})
+
+
+
+
 
 
 
@@ -217,8 +231,21 @@ app.get('/bestCamps',async(req,res)=>{
  const result=await CampPaymentCollection.find().toArray()
  res.send(result)
  })
+ app.get('/campRegistration/:id',async(req,res)=>{
+  const id=req.params.id 
+  const query ={_id:new ObjectId(id)}
+  const result=await CampPaymentCollection.findOne(query)
+ 
+  res.send(result)
 
-////////////////////////////////
+  })
+
+////////////////////////////////feedBack///////////////////////////////////
+app.post('/feedback-and-ratings',async(req,res)=>{
+  const feed=req.body 
+  const result =await reviewCollection.insertOne(feed)
+  res.send(result)
+})
 
 
 
