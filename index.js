@@ -53,7 +53,9 @@ const verifyToken=(req,res,next)=>{
   })
 }
 
-app.get("/user/admin/:email", verifyToken, async (req, res) => {
+
+
+    app.get("/user/admin/:email", verifyToken,async (req, res) => {
       const email = req?.params?.email;
       if (!email === req?.decoded?.email) {
         return res.status(403).send({ message: "unauthorized access " });
@@ -66,6 +68,11 @@ app.get("/user/admin/:email", verifyToken, async (req, res) => {
       }
       res.send({ admin });
     });
+
+   
+
+
+
 
 
 const verifyAdmin=async(req,res,next)=>{
@@ -91,6 +98,14 @@ app.get('/organizer-profile',async(req,res)=>{
   res.send(result)
   //console.log(result)
 })
+
+app.get('/organizer/user/:email',async(req,res)=>{
+  const email=req.params.email
+  const query={email:email}
+  const result =await userCollection.findOne(query)
+  res.send(result)
+  //console.log(result)
+})
 //
 
 app.get('/organizer-profile/:id',async(req,res)=>{
@@ -102,7 +117,7 @@ app.get('/organizer-profile/:id',async(req,res)=>{
 })
 
 
-app.delete('/organizer-profile/:id',async(req,res)=>{
+app.delete('/organizer-profile/delete/:id',async(req,res)=>{
   const id=req.params.id 
   const query={_id:new ObjectId(id)}
  const result =await userCollection.deleteOne(query)
@@ -134,6 +149,7 @@ app.post('/user',async(req,res)=>{
   }
   query.name=user.name 
   query.photo=user.photo 
+  query.post=user.post 
   const result =await userCollection.insertOne(query)
   res.send(result)
   
