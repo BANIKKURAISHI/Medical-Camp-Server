@@ -30,6 +30,7 @@ async function run() {
     const jointCampCollection =client.db('Medical').collection('jointCamp')
     const CampPaymentCollection =client.db('Medical').collection('campPayment')
     const reviewCollection =client.db('Medical').collection('review')
+    const teamCollection =client.db('Medical').collection('Team')
 ////jwt 
 app.post ('/jwt',async(req,res)=>{
   const body =req.body 
@@ -56,6 +57,11 @@ const verifyToken=(req,res,next)=>{
 
 
 
+
+
+
+
+
     app.get("/user/admin/:email", verifyToken,async (req, res) => {
       const email = req?.params?.email;
       if (!email === req?.decoded?.email) {
@@ -70,7 +76,17 @@ const verifyToken=(req,res,next)=>{
       res.send({ admin });
     });
 
-   
+    // app.patch('/Part-profile/:id',verifyToken,async(req,res)=>{
+    //   const id=req.params.id 
+    //   const query ={_id:new ObjectId(id)}
+    //   const update={
+    //     $set:{
+    //       number:
+    //     }
+    //   }
+    //   const result =await userCollection.updateOne(query,update)
+    //   res.send(result)
+    // })
 
 
 
@@ -117,6 +133,20 @@ app.get('/organizer-profile/:id',async(req,res)=>{
   //console.log(result)
 })
 
+app.patch('/userUpdate/:id',async(req,res)=>{
+  const id=req.params.id 
+   const query={_id:new ObjectId(id)}
+   const body=req.body
+   options={upsert:true}
+   const update={
+    $set:{
+     number:update.number
+    }
+   }
+   const result =await userCollection.updateOne(query,update,option)
+   res.send(result)
+})
+
 
 app.delete('/organizer-profile/delete/:id',async(req,res)=>{
   const id=req.params.id 
@@ -125,7 +155,11 @@ app.delete('/organizer-profile/delete/:id',async(req,res)=>{
  res.send(result)
  //console.log(result)
 })
-
+////////////////////////////////////get a team////////////
+app.get('/team',async(req,res)=>{
+  const result =await teamCollection.find().toArray()
+  res.send(result)
+})
 
 
 app.patch('/organizer-profile/admin/:id',verifyToken,async(req,res)=>{
@@ -246,7 +280,7 @@ app.post('/feedback-and-ratings',async(req,res)=>{
   const result =await reviewCollection.insertOne(feed)
   res.send(result)
 })
-app.get('/feedback-and-ratings',async(req,res)=>{
+app.get('/feedback-and-rating',async(req,res)=>{
   const result=await reviewCollection.find().toArray()
   res.send(result)
 })
@@ -278,21 +312,24 @@ app.get('/feedback-and-ratings',async(req,res)=>{
       const id = req.params.id;
       const query = { _id:new ObjectId (id) };
       const update = req.body;
+      const updateDoc={
+        campName:update.campName,
+        image:update.image, 
+        campFees:update.campFees,
+        scheduledDate:update.scheduledDate,
+        time:update.time,
+        venue:update.venue,
+        services :update.services ,
+        attendance:update.attendance,
+        targetAudience:update.targetAudience,
+        description:update.description
+      }
+      if(!updateDoc.image){
+        delete updateDoc.image
+      }
       const options = { upsert: true };
       const document ={
-        $set:{
-          campName:update.campName,
-          image:update.image, 
-          campFees:update.campFees,
-          scheduledDate:update.scheduledDate,
-          time:update.time,
-          venue:update.venue,
-          services :update.services ,
-          attendance:update.attendance,
-          targetAudience:update.targetAudience,
-          description:update.description
-        }
-        
+        $set:updateDoc
       }
       const result =await adminAddCollection.updateOne(query,document,options)
       res.send(result)
