@@ -76,17 +76,32 @@ const verifyToken=(req,res,next)=>{
       res.send({ admin });
     });
 
-    // app.patch('/Part-profile/:id',verifyToken,async(req,res)=>{
-    //   const id=req.params.id 
-    //   const query ={_id:new ObjectId(id)}
-    //   const update={
-    //     $set:{
-    //       number:
-    //     }
-    //   }
-    //   const result =await userCollection.updateOne(query,update)
-    //   res.send(result)
-    // })
+    //////////////////participant user profile update
+
+    app.patch('/participant/:email',async(req,res)=>{
+      const email=req.params.email
+      const query ={email : email}
+      const body=req.body
+       const updateDoc= {
+        name:body.name,
+        number:body.number,
+        photo:body.image,
+        preference:body.preference,
+        area:body.area ,
+        moreEmail:body.newEmail,
+        image:body.image,
+
+      }
+      if(!updateDoc.image){
+        delete updateDoc.image
+      }
+      const options = { upsert: true };
+      const update={
+        $set:updateDoc
+      }
+      const result =await userCollection.updateOne(query,update,options)
+      res.send(result)
+    })
 
 
 
@@ -138,6 +153,7 @@ app.patch('/userUpdate/:id',async(req,res)=>{
    const query={_id:new ObjectId(id)}
    const body=req.body
    options={upsert:true}
+
    const update={
     $set:{
      number:update.number
