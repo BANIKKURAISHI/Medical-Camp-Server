@@ -71,6 +71,9 @@ async function run() {
     });
 
     //////////////////participant user profile update
+ 
+
+
 
     app.patch("/participant/:email",verifyToken, async (req, res) => {
       const email = req.params.email;
@@ -80,11 +83,12 @@ async function run() {
         name: body.name,
         number: body.number,
         photo: body.image,
-       
         preference: body.preference,
         area: body.area,
         moreEmail: body.moreEmail,
         story: body.story,
+        specialty: body.specialty ,
+        certifications: body.certifications
        
       };
      
