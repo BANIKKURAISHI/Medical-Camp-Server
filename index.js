@@ -22,7 +22,7 @@ const client = new MongoClient(uri, {
 
 async function run() {
   try {
-    await client.connect();
+   // await client.connect();
     const adminAddCollection = client.db("Medical").collection("adminAdd");
     const userCollection = client.db("Medical").collection("users");
     const jointCampCollection = client.db("Medical").collection("jointCamp");
@@ -72,7 +72,7 @@ async function run() {
 
     //////////////////participant user profile update
 
-    app.patch("/participant/:email", async (req, res) => {
+    app.patch("/participant/:email",verifyToken, async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const body = req.body;
@@ -80,15 +80,14 @@ async function run() {
         name: body.name,
         number: body.number,
         photo: body.image,
+       
         preference: body.preference,
         area: body.area,
         moreEmail: body.moreEmail,
+        story: body.story,
+       
       };
-      if (!updateDoc.photo ) {
-        delete updateDoc.photo 
-        
-      }
-
+     
       const options = { upsert: true };
       const update = {
         $set: updateDoc,
@@ -96,6 +95,7 @@ async function run() {
       const result = await userCollection.updateOne(query, update, options);
       res.send(result);
     });
+   
 
     const verifyAdmin = async (req, res, next) => {
       const email = req?.decoded?.email;
@@ -109,37 +109,37 @@ async function run() {
     };
 
     //////////////////////Best participant 
-    app.get("/participant", async (req, res) => {
+    app.get("/participant",verifyToken, async (req, res) => {
       const result = await participantCollection.find().toArray();
       res.send(result);
-      //console.log(result)
+      
     });
 
     ///user collection work /////////////////////////////////////////////////////////////
-    app.get("/organizer-profile", async (req, res) => {
+    app.get("/organizer-profile",verifyToken, async (req, res) => {
       const result = await userCollection.find().toArray();
       res.send(result);
-      //console.log(result)
+      
     });
 
-    app.get("/organizer/user/:email", async (req, res) => {
+    app.get("/organizer/user/:email",verifyToken, async (req, res) => {
       const email = req.params.email;
       const query = { email: email };
       const result = await userCollection.findOne(query);
       res.send(result);
-      //console.log(result)
+      
     });
     //
 
-    app.get("/organizer-profile/:id", async (req, res) => {
+    app.get("/organizer-profile/:id",verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await userCollection.findOne(query);
       res.send(result);
-      //console.log(result)
+      
     });
 
-    app.patch("/userUpdate/:id", async (req, res) => {
+    app.patch("/userUpdate/:id",verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const body = req.body;
@@ -154,12 +154,12 @@ async function run() {
       res.send(result);
     });
 
-    app.delete("/organizer-profile/delete/:id", async (req, res) => {
+    app.delete("/organizer-profile/delete/:id",verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await userCollection.deleteOne(query);
       res.send(result);
-      //console.log(result)
+      
     });
     ////////////////////////////////////get a team////////////
     app.get("/team", async (req, res) => {
@@ -167,7 +167,7 @@ async function run() {
       res.send(result);
     });
 
-    app.patch("/organizer-profile/admin/:id", verifyToken, async (req, res) => {
+    app.patch("/organizer-profile/admin/:id", verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const update = {
@@ -179,7 +179,7 @@ async function run() {
       res.send(result);
     });
 
-    app.post("/user", async (req, res) => {
+    app.post("/user",verifyToken, async (req, res) => {
       const user = req.body;
       const query = { email: user.email };
       const uniqEmail = await userCollection.findOne(query);
@@ -193,32 +193,32 @@ async function run() {
       res.send(result);
     });
     ////join Camp  work //////////////////////////////////////////////////////////////////////////////
-    app.post("/registration", async (req, res) => {
+    app.post("/registration",verifyToken, async (req, res) => {
       const add = req.body;
       const result = await jointCampCollection.insertOne(add);
       res.send(result);
-      // console.log(result)
+      
     });
 
     //////////////////paid camp gate
-    app.get("/paid", async (req, res) => {
+    app.get("/paid",verifyToken, async (req, res) => {
       const email = req?.query?.email;
       console.log(email);
       const query = { email: email };
       const result = await CampPaymentCollection.find(query).toArray();
       res.send(result);
-      // console.log(result)
+      
     });
 
-    app.get("/registration", async (req, res) => {
+    app.get("/registration",verifyToken, async (req, res) => {
       const email = req?.query?.email;
       console.log(email);
       const query = { email: email };
       const result = await jointCampCollection.find(query).toArray();
       res.send(result);
-      // console.log(result)
+      
     });
-    app.get("/registration/:id", async (req, res) => {
+    app.get("/registration/:id",verifyToken, async (req, res) => {
       const id = req.params.id;
       // console.log (id)
       const query = { _id: new ObjectId(id) };
@@ -233,7 +233,7 @@ async function run() {
     //  })
 
     //get 6 id which
-    app.get("/bestCamps", async (req, res) => {
+    app.get("/bestCamps",verifyToken, async (req, res) => {
       // const filter =req.query
       // const query={full_description:}
       const result = await adminAddCollection
@@ -244,7 +244,7 @@ async function run() {
       res.send(result);
     });
     ///// update only attendence
-    app.patch("/update/:id", async (req, res) => {
+    app.patch("/update/:id", verifyToken,async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const update = req.body;
@@ -262,11 +262,11 @@ async function run() {
       res.send(result);
     });
     /////////////////////Camp payment
-    app.get("/campRegistration", async (req, res) => {
+    app.get("/campRegistration",verifyToken, async (req, res) => {
       const result = await CampPaymentCollection.find().toArray();
       res.send(result);
     });
-    app.get("/campRegistration/:id", async (req, res) => {
+    app.get("/campRegistration/:id",verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await CampPaymentCollection.findOne(query);
@@ -275,28 +275,28 @@ async function run() {
     });
 
     ////////////////////////////////feedBack///////////////////////////////////
-    app.post("/feedback-and-ratings", async (req, res) => {
+    app.post("/feedback-and-ratings",verifyToken, async (req, res) => {
       const feed = req.body;
       const result = await reviewCollection.insertOne(feed);
       res.send(result);
     });
-    app.get("/feedback-and-rating", async (req, res) => {
+    app.get("/feedback-and-rating",verifyToken, async (req, res) => {
       const result = await reviewCollection.find().toArray();
       res.send(result);
     });
 
     //// Post for new user
-    app.post("/adminAdd", async (req, res) => {
+    app.post("/adminAdd",verifyToken,verifyAdmin, async (req, res) => {
       const add = req.body;
       const result = await adminAddCollection.insertOne(add);
       res.send(result);
-      //console.log(result)
+      
     });
-    app.get("/manage-camps", async (req, res) => {
+    app.get("/manage-camps",verifyToken, async (req, res) => {
       const result = await adminAddCollection.find().toArray();
       res.send(result);
     });
-    app.get("/manage-camps/:id", async (req, res) => {
+    app.get("/manage-camps/:id",verifyToken, async (req, res) => {
       const id = req.params.id;
       // console.log (id)
       const query = { _id: new ObjectId(id) };
@@ -304,7 +304,7 @@ async function run() {
       res.send(result);
     });
 
-    app.patch("/update-camp/:id", async (req, res) => {
+    app.patch("/update-camp/:id",verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const update = req.body;
@@ -335,7 +335,7 @@ async function run() {
       res.send(result);
     });
 
-    app.delete("/delete-camp/:id", async (req, res) => {
+    app.delete("/delete-camp/:id",verifyToken,verifyAdmin, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await adminAddCollection.deleteOne(query);
@@ -343,13 +343,13 @@ async function run() {
     });
 
     ////payment item post
-    app.post("/payment", async (req, res) => {
+    app.post("/payment",verifyToken, async (req, res) => {
       const id = req.body;
       const paymentResult = await CampPaymentCollection.insertOne(id);
       res.send(paymentResult);
     });
 
-    app.patch("/updateCamp/:id", async (req, res) => {
+    app.patch("/updateCamp/:id",verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const update = req.body;
@@ -363,7 +363,7 @@ async function run() {
       res.send(result);
     });
 
-    app.delete("/registration-cancel/:id", async (req, res) => {
+    app.delete("/registration-cancel/:id",verifyToken, async (req, res) => {
       const id = req.params.id;
       const query = { _id: new ObjectId(id) };
       const result = await jointCampCollection.deleteOne(query);
@@ -371,7 +371,7 @@ async function run() {
     });
 
     ////////////payment method /////////////////////
-    app.post("/create-payment-intent", async (req, res) => {
+    app.post("/create-payment-intent",verifyToken, async (req, res) => {
       const { price } = req.body;
       const amount = parseInt(price * 100);
       const paymentIntent = await stripe.paymentIntents.create({
@@ -385,10 +385,10 @@ async function run() {
       });
     });
 
-    await client.db("admin").command({ ping: 1 });
-    console.log(
-      "Pinged your deployment. You successfully connected to MongoDB!"
-    );
+    // await client.db("admin").command({ ping: 1 });
+    // console.log(
+    //   "Pinged your deployment. You successfully connected to MongoDB!"
+    // );
   } finally {
     // Ensures that the client will close when you finish/error
     //  await client.close();
